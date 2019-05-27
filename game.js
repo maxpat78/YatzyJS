@@ -2,6 +2,108 @@
 //~ Licensed according to Creative Commons CC0 1.0 Universal
 //~ This free software lets you play Yatzy dice game in a browser
 
+//
+// My patches to D6.js
+//
+D6AnimBuilder.prototype.genDiceHtml = function(layout, callback, callbackData) {
+	this.layout = layout;
+	this.callback = callback;
+	this.callbackData = callbackData;
+	var dieCount = 0;
+	var genHtml = "";
+	var numTotalImgs = this.groupsize * this.numGroups;
+	for (var i=0; i<layout.length; ++i) {
+		if (dieCount >= numTotalImgs) break;
+		genHtml += "<div id='" + this.id + "_diceGroup_" + i + "' class='diceGroup'>";
+		var imgsThisRow = layout[i] * this.groupsize;
+		for (var j=0; j<imgsThisRow; ++j) {
+			++dieCount;
+			if (dieCount > numTotalImgs) break;
+			if (this.useImages) {
+				genHtml += "<img id='" + this.id + dieCount + "' class='die' src='" + this.baseUrl + "blank.gif' onclick='D6AnimBuilder.onClick(" + dieCount + ")' />";
+			} else {
+				genHtml += "<span id='" + this.id + dieCount + "' class='dieNumber'>&nbsp;</span> ";
+			}
+		}
+		genHtml += " <span id='sidebar_" + i + "' class='sidebar'></span>";
+		genHtml += "</div>\n";
+	}
+	return genHtml;
+}
+
+D6AnimBuilder.prototype.genSDiceHtml = function(layout) {
+	this.layout = layout;
+	var dieCount = 0;
+	var genHtml = "";
+	var numTotalImgs = this.groupsize * this.numGroups;
+	for (var i=0; i<layout.length; ++i) {
+		if (dieCount >= numTotalImgs) break;
+		genHtml += "<div id='" + this.id + "_sdiceGroup_" + i + "' class='diceGroup'>";
+		var imgsThisRow = layout[i] * this.groupsize;
+		for (var j=0; j<imgsThisRow; ++j) {
+			++dieCount;
+			if (dieCount > numTotalImgs) break;
+			if (this.useImages) {
+				genHtml += "<img id='s" + this.id + dieCount + "' class='die' src='" + this.baseUrl + "blank.gif' onclick='D6AnimBuilder.onClick(" + dieCount + ")' />";
+			} else {
+				genHtml += "<span id='s" + this.id + dieCount + "' class='dieNumber'>&nbsp;</span> ";
+			}
+		}
+		genHtml += " <span id='ssidebar_" + i + "' class='sidebar'></span>";
+		genHtml += "</div>\n";
+	}
+	return genHtml;
+}
+
+D6.diceToShow = function(numDice) {
+	if (!numDice) numDice = 0;
+	if (numDice < 0) numDice = 0;
+	if (numDice > D6.numDice) numDice = D6.numDice
+	if (numDice == D6.numDiceShown) return
+	var i
+	var dieElem
+	for (i=1; i<=numDice; ++i) {
+		dieElem = document.getElementById('dice' + i)
+		if (dieElem) dieElem.style.visibility = ""
+	}
+	for ( ; i<=D6.numDice; ++i) {
+		dieElem = document.getElementById('dice' + i)
+		if (dieElem) dieElem.style.visibility = "hidden"
+	}
+	D6.numDiceShown = numDice
+}
+
+// Shows or Hides a specific die, keeping the last visible
+D6.diceSave = function(numDie) {
+	if (!numDie || numDie < 0 || numDie > D6.numDie || D6.inizioTurno) return
+	dieElem = document.getElementById('dice' + numDie)
+	sdieElem = document.getElementById('sdice' + numDie)
+	if (dieElem.style.visibility == "hidden") {
+		sdieElem.style.visibility = "hidden"
+		dieElem.src = sdieElem.src
+		dieElem.style.visibility = ""
+		D6.numDiceShown+=1
+	} else {
+		dieElem.style.visibility = "hidden"
+		sdieElem.style.visibility = ""
+		sdieElem.src = dieElem.src
+		D6.numDiceShown-=1
+	}
+}
+
+// Updates the results array with not saved dice only
+D6.diceGet = function(dadi) {
+	for(i=1; i<D6.numDice+1; i++)
+		if (document.getElementById('dice' + i).style.visibility == "")
+			dadi[i-1] = D6.builder.results[i-1]
+}
+
+
+
+//
+// Here starts the Yatzy game implementation
+//
+
 // Enumerazione delle combinazioni valide
 const Punti = {
     Uno:0, Due:1, Tre:2, Quattro:3, Cinque:4, Sei:5,
@@ -225,7 +327,6 @@ function resetGioco() {
     }
 }
 
-
 function infoDiv() {
     if (!turniRimasti) {
         document.getElementById("infodiv").innerHTML = "Partita conclusa. Premi Azzera se vuoi giocare di nuovo."
@@ -252,7 +353,7 @@ function hallOfFame() {
     document.write('</body></html>')
 }
 
-
+// Recupera i punteggi annotati nel cookie
 function getScore() {
     var cookie = document.cookie.split(';')
     var myCookie="", label='punteggi='
@@ -271,7 +372,6 @@ function getScore() {
     return punteggi
 }
 
-
 // Salva cronologicamente gli ultimi 100 punteggi
 function storeScore(score) {
     var punteggi = getScore()
@@ -283,7 +383,6 @@ function storeScore(score) {
     punteggi[new Date().toLocaleString()] = score
     setCookie('punteggi', JSON.stringify(punteggi), 365)
 }
-
 
 function setCookie(cname, cvalue, exdays) {
   var d = new Date();
