@@ -544,19 +544,19 @@ D6.quickRandom = function(base) {
 D6.diceToShow = function(numDice) {
 	if (!numDice) numDice = 0;
 	if (numDice < 0) numDice = 0;
-	if (numDice > D6.numDice) numDice = D6.numDice;
-	if (numDice == D6.numDiceShown) return;
-	var i;
-	var dieElem;
+	if (numDice > D6.numDice) numDice = D6.numDice
+	if (numDice == D6.numDiceShown) return
+	var i
+	var dieElem
 	for (i=1; i<=numDice; ++i) {
-		dieElem = document.getElementById('dice' + i);
-		if (dieElem) dieElem.style.visibility = "";
+		dieElem = document.getElementById('dice' + i)
+		if (dieElem) dieElem.style.visibility = ""
 	}
 	for ( ; i<=D6.numDice; ++i) {
-		dieElem = document.getElementById('dice' + i);
-		if (dieElem) dieElem.style.visibility = "hidden";
+		dieElem = document.getElementById('dice' + i)
+		if (dieElem) dieElem.style.visibility = "hidden"
 	}
-	D6.numDiceShown = numDice;
+	D6.numDiceShown = numDice
 }
 
 //
@@ -565,7 +565,7 @@ D6.diceToShow = function(numDice) {
 
 // Shows or Hides a specific die, keeping the last visible
 D6.diceSave = function(numDie) {
-	if (!numDie || numDie < 0 || numDie > D6.numDie) return
+	if (!numDie || numDie < 0 || numDie > D6.numDie || D6.inizioTurno) return
 	dieElem = document.getElementById('dice' + numDie)
 	sdieElem = document.getElementById('sdice' + numDie)
 	if (dieElem.style.visibility == "hidden") {

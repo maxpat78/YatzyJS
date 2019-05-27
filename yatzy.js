@@ -124,7 +124,8 @@ function tiraDadi() {
     dice.reset()
     dice.start()
     tiriRimasti--
-    //~ document.getElementById("tiri").innerHTML = tiriRimasti
+    D6.inizioTurno = false
+    infoDiv()
 }
 
 
@@ -139,6 +140,7 @@ function annota(id) {
     turniRimasti--
     dadiSalvati = new Array(D6.numDice)
     D6.diceToShow(5)
+    D6.inizioTurno = true
     for (i=1; i<D6.numDice+1; i++)
         document.getElementById('sdice'+i).src="blank.gif"
     // Resetta le caselle non annotate
@@ -170,9 +172,8 @@ function annota(id) {
         document.getElementById("Totale").innerHTML = somma
         storeScore(somma)
     }
-    //~ document.getElementById("turni").innerHTML = turniRimasti
-    //~ document.getElementById("tiri").innerHTML = 3
     puntoDaAnnotare = false
+    infoDiv()
 }
 
 
@@ -204,19 +205,20 @@ var callback = function (total, info, results) {
         }
     }
     puntoDaAnnotare = true
+    infoDiv()
 }
 
 var puntiSalvati, puntiMano, dadiSalvati, tiriRimasti, turniRimasti, puntoDaAnnotare
 
 function resetGioco() {
     D6.diceToShow(5)
+    D6.inizioTurno = true
     puntiSalvati = new Array(15)
     dadiSalvati = new Array(D6.numDice)
     tiriRimasti = 3
     turniRimasti = 15
     puntoDaAnnotare = false
-    //~ document.getElementById("tiri").innerHTML = tiriRimasti
-    //~ document.getElementById("turni").innerHTML = turniRimasti
+    infoDiv()
     for (var p in Punti) {
         e = document.getElementById(p)
         e.innerHTML = ""
@@ -224,9 +226,18 @@ function resetGioco() {
 }
 
 
+function infoDiv() {
+    s = "Hai "+tiriRimasti+" tiri e "+turniRimasti+" turni. "
+    if (D6.inizioTurno) s += "Inizia il turno "+(16-turniRimasti)+". "
+    if (puntoDaAnnotare) s += "Puoi segnare i tuoi punti."
+    document.getElementById("infodiv").innerHTML = s
+}
+
+
 function hallOfFame() {
     document.write('<html><body>')
-    document.write('<div style="text-align:center"><a href="javascript:history.back()">(Torna al gioco)</a></div>')
+    // javascript:history.back() non vale, poiché siamo tecnicamente nella stessa pagina... riscritta!
+    document.write('<div style="text-align:center"><a href="index.html">(Torna al gioco)</a></div>')
     document.write('<h2>Ultimi 100 punteggi</h2>')
     document.write('<table>')
     var punteggi = getScore()
