@@ -227,6 +227,10 @@ function resetGioco() {
 
 
 function infoDiv() {
+    if (!turniRimasti) {
+        document.getElementById("infodiv").innerHTML = "Partita conclusa. Premi Azzera se vuoi giocare di nuovo."
+        return
+    }
     s = "Hai "+tiriRimasti+" tiri e "+turniRimasti+" turni. "
     if (D6.inizioTurno) s += "Inizia il turno "+(16-turniRimasti)+". "
     if (puntoDaAnnotare) s += "Puoi segnare i tuoi punti."
